@@ -18,12 +18,14 @@ struct DetailWeatherView: View {
         ("Sunrise", "5:30 am")
     ]
     
+    var dismiss: () -> Void
+    
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             HStack {
                 Spacer()
                 Button {
-                    print("done")
+                    dismiss()
                 } label: {
                     XDismissButton()
                 }
@@ -31,13 +33,18 @@ struct DetailWeatherView: View {
                 .padding(.top, 10)
             }
             
-            List(weatherDetails, id: \.title) { detail in
-                WeatherRow(title: detail.title, value: detail.value)
+            ScrollView {
+                VStack(spacing: 0) {
+                    ForEach(weatherDetails, id: \.title) { detail in
+                        WeatherRow(title: detail.title, value: detail.value)
+                        Divider()
+                    }
+                }
+                .padding(.horizontal)
             }
-            .listStyle(PlainListStyle())
         }
-        .frame(width: 375, height: 650)
-        .background(Color(.systemBackground))
+        .frame(width: 375, height: 425)
+        .background(Color(.blue.opacity(0.5)))
         .cornerRadius(20)
         .shadow(radius: 10)
     }
@@ -56,10 +63,27 @@ struct WeatherRow: View {
             Text(value)
                 .font(.title2)
                 .fontWeight(.medium)
-        }.padding()
+        }
+        .padding(.vertical, 12)
     }
 }
 
 #Preview {
-    DetailWeatherView()
+    DetailWeatherView(dismiss: {})
+}
+
+struct XDismissButton: View {
+    var body: some View {
+        ZStack {
+            Circle()
+                .frame(width: 30, height: 30)
+                .foregroundColor(.white)
+                .opacity(0.6)
+            
+            Image(systemName: "xmark")
+                .imageScale(.small)
+                .frame(width: 45, height: 44)
+                .foregroundColor(.black)
+        }
+    }
 }
