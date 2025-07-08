@@ -9,11 +9,21 @@
 /* Begin PBXBuildFile section */
 		451B5C822E1CBD4C003E63C0 /* AVKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 451B5C812E1CBD4C003E63C0 /* AVKit.framework */; };
 		451B5DBA2E1CE2DC003E63C0 /* sunny.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 451B5DB92E1CE2DC003E63C0 /* sunny.mp4 */; };
+		451B5DEE2E1D52FF003E63C0 /* clear_night.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 451B5DE92E1D52FF003E63C0 /* clear_night.mp4 */; };
+		451B5DEF2E1D52FF003E63C0 /* rainy_night.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 451B5DED2E1D52FF003E63C0 /* rainy_night.mp4 */; };
+		451B5DF02E1D52FF003E63C0 /* rainy_day.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 451B5DEC2E1D52FF003E63C0 /* rainy_day.mp4 */; };
+		451B5DF12E1D52FF003E63C0 /* cloudy_day.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 451B5DEA2E1D52FF003E63C0 /* cloudy_day.mp4 */; };
+		451B5DF22E1D52FF003E63C0 /* cloudy_night.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 451B5DEB2E1D52FF003E63C0 /* cloudy_night.mp4 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		451B5C812E1CBD4C003E63C0 /* AVKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVKit.framework; path = System/Library/Frameworks/AVKit.framework; sourceTree = SDKROOT; };
 		451B5DB92E1CE2DC003E63C0 /* sunny.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = sunny.mp4; sourceTree = "<group>"; };
+		451B5DE92E1D52FF003E63C0 /* clear_night.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = clear_night.mp4; sourceTree = "<group>"; };
+		451B5DEA2E1D52FF003E63C0 /* cloudy_day.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = cloudy_day.mp4; sourceTree = "<group>"; };
+		451B5DEB2E1D52FF003E63C0 /* cloudy_night.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = cloudy_night.mp4; sourceTree = "<group>"; };
+		451B5DEC2E1D52FF003E63C0 /* rainy_day.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = rainy_day.mp4; sourceTree = "<group>"; };
+		451B5DED2E1D52FF003E63C0 /* rainy_night.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = rainy_night.mp4; sourceTree = "<group>"; };
 		457415772E1B7F3300C503D9 /* MyWeatherApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyWeatherApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -40,6 +50,11 @@
 		451B5C802E1CBD4C003E63C0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				451B5DE92E1D52FF003E63C0 /* clear_night.mp4 */,
+				451B5DEA2E1D52FF003E63C0 /* cloudy_day.mp4 */,
+				451B5DEB2E1D52FF003E63C0 /* cloudy_night.mp4 */,
+				451B5DEC2E1D52FF003E63C0 /* rainy_day.mp4 */,
+				451B5DED2E1D52FF003E63C0 /* rainy_night.mp4 */,
 				451B5DB92E1CE2DC003E63C0 /* sunny.mp4 */,
 				451B5C812E1CBD4C003E63C0 /* AVKit.framework */,
 			);
@@ -127,6 +142,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				451B5DEE2E1D52FF003E63C0 /* clear_night.mp4 in Resources */,
+				451B5DEF2E1D52FF003E63C0 /* rainy_night.mp4 in Resources */,
+				451B5DF02E1D52FF003E63C0 /* rainy_day.mp4 in Resources */,
+				451B5DF12E1D52FF003E63C0 /* cloudy_day.mp4 in Resources */,
+				451B5DF22E1D52FF003E63C0 /* cloudy_night.mp4 in Resources */,
 				451B5DBA2E1CE2DC003E63C0 /* sunny.mp4 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

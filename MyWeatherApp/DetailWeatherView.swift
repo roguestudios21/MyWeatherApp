@@ -8,16 +8,7 @@
 import SwiftUI
 
 struct DetailWeatherView: View {
-    private let weatherDetails: [(title: String, value: String)] = [
-        ("Temperature", "25°C"),
-        ("Humidity", "25%"),
-        ("Wind Speed", "25 km/h"),
-        ("Wind Direction", "25°"),
-        ("Precipitation", "25%"),
-        ("Sunset", "6:00 pm"),
-        ("Sunrise", "5:30 am")
-    ]
-    
+    let weather: WeatherData
     var dismiss: () -> Void
     
     var body: some View {
@@ -35,15 +26,20 @@ struct DetailWeatherView: View {
             
             ScrollView {
                 VStack(spacing: 0) {
-                    ForEach(weatherDetails, id: \.title) { detail in
-                        WeatherRow(title: detail.title, value: detail.value)
-                        Divider()
-                    }
+                    WeatherRow(title: "Temperature", value: "\(Int(weather.main.temp))°C")
+                    Divider()
+                    WeatherRow(title: "Humidity", value: "\(weather.main.humidity)%")
+                    Divider()
+                    WeatherRow(title: "Wind Speed", value: "\(weather.wind.speed) km/h")
+                    Divider()
+                    WeatherRow(title: "Wind Direction", value: "\(weather.wind.deg)°")
+                    Divider()
+                    WeatherRow(title: "Description", value: weather.weather.first?.description.capitalized ?? "N/A")
                 }
                 .padding(.horizontal)
             }
         }
-        .frame(width: 375, height: 425)
+        .frame(width: 375, height: 375)
         .background(Color(.blue.opacity(0.5)))
         .cornerRadius(20)
         .shadow(radius: 10)
@@ -69,7 +65,15 @@ struct WeatherRow: View {
 }
 
 #Preview {
-    DetailWeatherView(dismiss: {})
+    DetailWeatherView(
+        weather: WeatherData(
+            name: "Mumbai",
+            main: WeatherData.Main(temp: 28.0, humidity: 70),
+            weather: [WeatherData.Weather(description: "Sunny", icon: "01d")],
+            wind: WeatherData.Wind(speed: 5.0, deg: 180)
+        ),
+        dismiss: {}
+    )
 }
 
 struct XDismissButton: View {
