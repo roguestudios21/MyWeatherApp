@@ -13,7 +13,7 @@ class NetworkManager: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     
-    private let apiKey = "API-Key" // replace with your real key
+    private let apiKey = "" // replace with your real key
     private var cancellable: AnyCancellable?
     
     func fetchWeather(for city: String) {
