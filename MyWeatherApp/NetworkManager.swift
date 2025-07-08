@@ -1,4 +1,3 @@
-
 //
 //  NetworkManager.swift
 //  MyWeatherApp
@@ -17,13 +16,12 @@ class NetworkManager: ObservableObject {
     private let apiKey = "ba9683bb00c6a7473607697e3815eeb4" // replace with your real key
     private var cancellable: AnyCancellable?
     
-    func fetchMumbaiWeather() {
+    func fetchWeather(for city: String) {
         isLoading = true
         errorMessage = nil
         
-        let lat = 19.0760
-        let lon = 72.8777
-        let urlString = "https://api.openweathermap.org/data/2.5/weather?lat=\(lat)&lon=\(lon)&appid=\(apiKey)&units=metric"
+        let encodedCity = city.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? city
+        let urlString = "https://api.openweathermap.org/data/2.5/weather?q=\(encodedCity)&appid=\(apiKey)&units=metric"
         
         guard let url = URL(string: urlString) else {
             errorMessage = "Invalid URL"

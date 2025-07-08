@@ -9,6 +9,7 @@ import SwiftUI
 import AVFoundation
 
 struct MainWeatherView: View {
+    var city: String
     
     @StateObject private var networkManager = NetworkManager()
     @State private var showDetails = false
@@ -75,7 +76,7 @@ struct MainWeatherView: View {
             .animation(.easeInOut(duration: 0.3), value: showDetails)
         }
         .onAppear {
-            networkManager.fetchMumbaiWeather()
+            networkManager.fetchWeather(for: city)
         }
         .onChange(of: networkManager.weather) {
             if let iconCode = networkManager.weather?.weather.first?.icon,
@@ -114,7 +115,7 @@ struct MainWeatherView: View {
 
 
 #Preview {
-    MainWeatherView()
+    MainWeatherView(city: "Mumbai")
 }
 
 // MARK: - Subviews
@@ -172,7 +173,7 @@ struct DetailsButton: View {
         Button(action: action) {
             Text("Details")
                 .frame(width: 280, height: 50)
-                .background(Color.blue.opacity(0.7))
+                .background(Color.gray.opacity(0.7))
                 .foregroundColor(.white)
                 .font(.system(size: 20, weight: .bold))
                 .cornerRadius(10)
@@ -214,7 +215,7 @@ struct NavigationButton: View {
                 .padding()
                 .background(
                     Capsule()
-                        .fill(Color.blue.opacity(0.7))
+                        .fill(Color.gray.opacity(0.7))
                 )
         }
     }

@@ -40,7 +40,7 @@ struct DetailWeatherView: View {
             }
         }
         .frame(width: 375, height: 375)
-        .background(Color(.blue.opacity(0.5)))
+        .background(Color(.white.opacity(0.5)))
         .cornerRadius(20)
         .shadow(radius: 10)
     }

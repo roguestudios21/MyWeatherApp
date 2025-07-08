@@ -8,7 +8,12 @@
 import SwiftUI
 
 struct CitySelectView: View {
-    let cities = ["New York", "Paris", "Rome", "London", "Tokyo"]
+    let cities = [
+        "Mumbai", "New York", "London", "Paris", "Rome",
+        "Tokyo", "Berlin", "Sydney", "Moscow", "Toronto",
+        "Chicago", "Los Angeles", "Dubai", "Singapore", "Seoul",
+        "Bangkok", "Barcelona", "San Francisco", "Istanbul", "Cairo"
+    ]
     
     var body: some View {
         NavigationStack {
@@ -16,7 +21,7 @@ struct CitySelectView: View {
                 Section(header: Text("Select City")) {
                     ForEach(cities, id: \.self) { city in
                         NavigationLink {
-                            MainWeatherView()
+                            MainWeatherView(city: city)
                         } label: {
                             Text(city)
                         }
