@@ -1,74 +1,71 @@
-//
-//  MainWeatherView.swift
-//  MyWeatherApp
-//
-//  Created by Atharv on 07/07/25.
-//
-
 import SwiftUI
 import AVFoundation
+import CoreData
 
 struct MainWeatherView: View {
     var city: String
-    
+
+    @Environment(\.managedObjectContext) private var viewContext
+    @FetchRequest(entity: SavedCity.entity(), sortDescriptors: [])
+    private var savedCities: FetchedResults<SavedCity>
+
     @StateObject private var networkManager = NetworkManager()
+    @State private var player: AVPlayer?
+    @State private var currentDayIndex = 0
     @State private var showDetails = false
-    @State private var player: AVPlayer? = nil
-    
+    @State private var showAlert = false
+
     var body: some View {
         ZStack {
             if let player = player {
-                            BackgroundVideoView(player: player)
-                                .ignoresSafeArea()
-                                .opacity(0.9)
-                                .blur(radius: 2)
-                        } else {
-                            // fallback while loading
-                            Color.black.ignoresSafeArea()
-                        }
-            
+                BackgroundVideoView(player: player)
+                    .ignoresSafeArea()
+                    .opacity(0.9)
+                    .blur(radius: 2)
+            } else {
+                Color.black.ignoresSafeArea()
+            }
+
             VStack {
                 Spacer(minLength: 75)
-                
-                if let weather = networkManager.weather {
-                    CityAndDateView(cityName: weather.name, day: formattedDate())
-                    
-                    PresentWeatherInfoView(
-                        iconName: WeatherIcon(rawValue: weather.weather.first?.icon ?? "")?.symbolName ?? "questionmark",
 
-                        temperature: Int(weather.main.temp),
-                        description: weather.weather.first?.description.capitalized ?? "N/A"
+                if let forecastItem = currentForecastItem {
+                    CityAndDateView(
+                        cityName: networkManager.cityName.isEmpty ? savedCities.first?.name ?? city : networkManager.cityName,
+                        day: formattedDay(from: forecastItem.dt_txt)
+                    )
+
+                    PresentWeatherInfoView(
+                        iconName: WeatherIcon(rawValue: forecastItem.weather.first?.icon ?? "")?.symbolName ?? "questionmark",
+                        temperature: Int(forecastItem.main.temp),
+                        description: forecastItem.weather.first?.description.capitalized ?? "N/A"
                     )
                 } else if networkManager.isLoading {
                     ProgressView("Loading weather...")
                         .foregroundColor(.white)
-                } else if let error = networkManager.errorMessage {
-                    Text("Error: \(error)")
-                        .foregroundColor(.red)
-                        .multilineTextAlignment(.center)
-                        .padding()
                 }
-                
+
                 DetailsButton {
-                    withAnimation {
-                        showDetails = true
-                    }
+                    withAnimation { showDetails = true }
                 }
-                
+
                 Spacer()
-                
-                NavigationButtonsView()
-                
+
+                if !networkManager.forecast.isEmpty {
+                    NavigationButtonsView(
+                        currentDayIndex: $currentDayIndex,
+                        forecastCount: networkManager.forecast.count
+                    )
+                }
+
                 Spacer()
             }
             .blur(radius: showDetails ? 20 : 0)
             .overlay(
                 Group {
-                    if showDetails, let weather = networkManager.weather {
-                        DetailWeatherView(weather: weather) {
-                            withAnimation {
-                                showDetails = false
-                            }
+                    if showDetails, let forecastItem = currentForecastItem {
+                        DetailWeatherView(weather: forecastItem) {
+                            withAnimation { showDetails = false }
                         }
                     }
                 }
@@ -76,61 +73,95 @@ struct MainWeatherView: View {
             .animation(.easeInOut(duration: 0.3), value: showDetails)
         }
         .onAppear {
-            networkManager.fetchWeather(for: city)
+            let savedCityName = savedCities.first?.name ?? city
+            networkManager.fetchForecast(for: savedCityName)
         }
-        .onChange(of: networkManager.weather) {
-            if let iconCode = networkManager.weather?.weather.first?.icon,
-               let weatherIcon = WeatherIcon(rawValue: iconCode) {
-                
-                let videoName = weatherIcon.backgroundVideoName
-                if let url = Bundle.main.url(forResource: videoName, withExtension: "mp4") {
-                    let newPlayer = AVPlayer(url: url)
-                    newPlayer.isMuted = true
-                    newPlayer.actionAtItemEnd = .none
+        .onChange(of: currentDayIndex) {
+            updateBackgroundVideo()
+        }
+        .onChange(of: networkManager.forecast) {
+            updateBackgroundVideo()
+        }
+        .onChange(of: networkManager.errorMessage) {
+            showAlert = networkManager.errorMessage != nil
+        }
 
-                    // Loop video
-                    NotificationCenter.default.addObserver(
-                        forName: .AVPlayerItemDidPlayToEndTime,
-                        object: newPlayer.currentItem,
-                        queue: .main
-                    ) { _ in
-                        newPlayer.seek(to: .zero)
-                        newPlayer.play()
-                    }
-
-                    newPlayer.play()
-                    player = newPlayer
+        .alert(isPresented: $showAlert) {
+            Alert(
+                title: Text("Error"),
+                message: Text(networkManager.errorMessage ?? "Unknown error"),
+                dismissButton: .default(Text("OK")) {
+                    networkManager.errorMessage = nil
                 }
-            }
+            )
+        }
+    }
+
+    private var currentForecastItem: ForecastItem? {
+        guard currentDayIndex < networkManager.forecast.count else { return nil }
+        return networkManager.forecast[currentDayIndex]
+    }
+
+    private func updateBackgroundVideo() {
+        guard let icon = currentForecastItem?.weather.first?.icon,
+              let weatherIcon = WeatherIcon(rawValue: icon),
+              let url = Bundle.main.url(forResource: weatherIcon.backgroundVideoName, withExtension: "mp4")
+        else {
+            player = nil
+            return
         }
 
+        let newPlayer = AVPlayer(url: url)
+        newPlayer.isMuted = true
+        newPlayer.actionAtItemEnd = .none
+
+        NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemDidPlayToEndTime,
+            object: newPlayer.currentItem,
+            queue: .main
+        ) { _ in
+            newPlayer.seek(to: .zero)
+            newPlayer.play()
+        }
+
+        newPlayer.play()
+        player = newPlayer
     }
-    
-    private func formattedDate() -> String {
+
+    private func formattedDay(from dt_txt: String?) -> String {
+        guard let dt_txt = dt_txt else { return formattedToday() }
         let formatter = DateFormatter()
-        formatter.dateFormat = "EEEE" // full weekday
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        if let date = formatter.date(from: dt_txt) {
+            formatter.dateFormat = "EEEE"
+            return formatter.string(from: date)
+        }
+        return formattedToday()
+    }
+
+    private func formattedToday() -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE"
         return formatter.string(from: Date())
     }
 }
 
-
 #Preview {
     MainWeatherView(city: "Mumbai")
+        .environment(\.managedObjectContext, PersistenceController.shared.container.viewContext)
 }
 
 // MARK: - Subviews
 
 struct CityAndDateView: View {
-    
     var cityName: String
     var day: String
-    
+
     var body: some View {
         VStack(spacing: 8) {
             Text(cityName)
                 .font(.largeTitle)
                 .foregroundColor(.white)
-            
             Text(day)
                 .font(.title)
                 .fontWeight(.medium)
@@ -140,11 +171,10 @@ struct CityAndDateView: View {
 }
 
 struct PresentWeatherInfoView: View {
-    
     var iconName: String
     var temperature: Int
     var description: String
-    
+
     var body: some View {
         VStack(spacing: 12) {
             Image(systemName: iconName)
@@ -152,11 +182,9 @@ struct PresentWeatherInfoView: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 180, height: 180)
-            
             Text("\(temperature)°C")
                 .font(.system(size: 80))
                 .foregroundColor(.white)
-            
             Text(description)
                 .font(.title)
                 .fontWeight(.semibold)
@@ -166,9 +194,8 @@ struct PresentWeatherInfoView: View {
 }
 
 struct DetailsButton: View {
-    
     var action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             Text("Details")
@@ -183,31 +210,32 @@ struct DetailsButton: View {
 }
 
 struct NavigationButtonsView: View {
-    
+    @Binding var currentDayIndex: Int
+    var forecastCount: Int
+
     var body: some View {
         HStack {
             Spacer()
-            
             NavigationButton(iconName: "chevron.backward.2") {
-                print("Left Swipe")
+                if currentDayIndex > 0 {
+                    currentDayIndex -= 1
+                }
             }
-            
             Spacer(minLength: 200)
-            
             NavigationButton(iconName: "chevron.forward.2") {
-                print("Right Swipe")
+                if currentDayIndex < forecastCount - 1 {
+                    currentDayIndex += 1
+                }
             }
-            
             Spacer()
         }
     }
 }
 
 struct NavigationButton: View {
-    
     var iconName: String
     var action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             Image(systemName: iconName)

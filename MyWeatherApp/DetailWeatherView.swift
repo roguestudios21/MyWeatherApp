@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct DetailWeatherView: View {
-    let weather: WeatherData
+    let weather: ForecastItem
     var dismiss: () -> Void
     
     var body: some View {
@@ -66,15 +66,18 @@ struct WeatherRow: View {
 
 #Preview {
     DetailWeatherView(
-        weather: WeatherData(
-            name: "Mumbai",
-            main: WeatherData.Main(temp: 28.0, humidity: 70),
-            weather: [WeatherData.Weather(description: "Sunny", icon: "01d")],
-            wind: WeatherData.Wind(speed: 5.0, deg: 180)
+        weather: ForecastItem(
+            dt: 1661871600,
+            dt_txt: "2022-08-30 15:00:00",
+            main: Main(temp: 28.0, humidity: 70),
+            weather: [Weather(description: "Sunny", icon: "01d")],
+            wind: Wind(speed: 5.0, deg: 180)
         ),
         dismiss: {}
     )
 }
+
+
 
 struct XDismissButton: View {
     var body: some View {
